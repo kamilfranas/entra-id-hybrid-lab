@@ -1,0 +1,35 @@
+# Secrets and credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.pfx
+*.p12
+*.cer
+*.crt
+
+# SSH private keys
+id_rsa
+id_ed25519
+id_ecdsa
+
+# Certificates and private material
+*.p7b
+*.p7c
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# Visual Studio Code (local workspace settings)
+.vscode/
