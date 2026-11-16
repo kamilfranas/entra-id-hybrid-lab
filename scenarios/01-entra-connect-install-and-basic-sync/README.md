@@ -1,4 +1,4 @@
-<img width="1761" height="459" alt="image" src="https://github.com/user-attachments/assets/38a65f6f-cd58-4132-8033-f3290987e533" /># Scenario 1: Sync AD Users to Entra ID with Entra Connect
+# Scenario 1: Sync AD Users to Entra ID with Entra Connect
 
 ## Goal
 
@@ -150,6 +150,3 @@ Install Microsoft Entra Connect, sync on-premises AD users to Entra ID, and excl
 - Finally, the Microsoft Entra admin center opens, and the user's name in the top right corner confirms the sign-in worked, which proves that password hash sync is working and the AD password can be used to sign in to Entra ID.
 
 <img width="2548" height="441" alt="Zrzut ekranu 2026-11-15 182832" src="https://github.com/user-attachments/assets/75f16a13-343a-47e0-bd58-c2b93fa2a107" />
-
-
-
