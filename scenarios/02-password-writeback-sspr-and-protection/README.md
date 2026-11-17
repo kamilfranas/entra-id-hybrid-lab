@@ -9,6 +9,48 @@ First, you reset a synced user's password in the Entra admin center and confirm 
 Next, you enable self-service password reset (SSPR) so users can reset their own passwords, and verify the login again.
 Finally, you configure password protection to block weak and easily guessed passwords.
 
+## Prerequisites
+
+### Licensing and roles
+
+- A Microsoft Entra ID P1 or P2 license assigned to the test user, required for SSPR with password writeback.
+- **Helpdesk Administrator**, to reset a synced user's password.
+- **Authentication Policy Administrator**, to configure SSPR and password protection settings.
+- **Global Administrator**, to register the first Password Protection proxy in the tenant.
+- **Global Administrator** or **Security Administrator**, to register the Active Directory forest.
+- **Enterprise Administrator** in on-premises Active Directory, also needed for the forest registration.
+
+### PowerShell commands used
+
+Loads the Password Protection module so its cmdlets are available:
+
+```powershell
+Import-Module AzureADPasswordProtection
+```
+
+Checks that the proxy service is installed and running:
+
+```powershell
+Get-Service AzureADPasswordProtectionProxy | fl
+```
+
+Registers the proxy server with Microsoft Entra ID, using device code sign-in:
+
+```powershell
+Register-AzureADPasswordProtectionProxy -AccountUpn 'admin@contoso.onmicrosoft.com' -AuthenticateUsingDeviceCode
+```
+
+Registers the Active Directory forest with Microsoft Entra ID, using device code sign-in:
+
+```powershell
+Register-AzureADPasswordProtectionForest -AccountUpn 'admin@contoso.onmicrosoft.com' -AuthenticateUsingDeviceCode
+```
+
+Tests that the proxy, TLS and Azure connectivity are healthy:
+
+```powershell
+Test-AzureADPasswordProtectionProxyHealth -TestAll
+```
 
 ## Step 1: Reset a synced user's password in Entra
 
