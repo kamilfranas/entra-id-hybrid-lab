@@ -20,6 +20,7 @@ The policies will require users from the Finance Department to:
 
 Finally, you will test the configuration using a Finance Department user account and review the sign-in logs to verify that the Conditional Access policies are applied correctly.
 
+Throughout the steps, you will also find additional diagnostic tips that show the complexity of this configuration and how to approach problems when you get stuck. At the end of the scenario, you will also see why a single Conditional Access policy is sometimes not enough and how multiple policies work together.
 
 ## Prerequisites
 
@@ -36,6 +37,7 @@ A Microsoft Entra ID P1 or P2 license, required for Conditional Access and dynam
 - **Intune Administrator** to create and assign compliance policies and manage enrolled devices.
 
 - **Hybrid Identity Administrator** to configure Microsoft Entra Connect and device registration.
+
 
 ## Step 1: Create a Dynamic Security Group for the Finance Department
 
@@ -67,6 +69,7 @@ A Microsoft Entra ID P1 or P2 license, required for Conditional Access and dynam
 
 <img width="1339" height="546" alt="image" src="https://github.com/user-attachments/assets/fab4c862-7b99-47e8-b22b-3f8e94662331" />
 
+
 ## Step 2: Create Named Locations for Poland (GPS and IP Address)
 
 - Go to Conditional Access, select Named locations, and click Countries location. Enter the name Poland IP, and under Determine location by, select IP address. Select Poland from the country list, and click Create.
@@ -80,6 +83,7 @@ A Microsoft Entra ID P1 or P2 license, required for Conditional Access and dynam
 - Verify that both named locations, Poland IP and Poland GPS, have been created. The Conditional Access policies column shows that they are not yet used in any policy; this will change after the block policy is created.
 
 <img width="1777" height="819" alt="image" src="https://github.com/user-attachments/assets/866d3734-702c-428c-9976-896f023ddb4a" />
+
 
 ## Step 3: Enroll a Device in Microsoft Intune and Configure Device Compliance
 
@@ -205,6 +209,7 @@ A Microsoft Entra ID P1 or P2 license, required for Conditional Access and dynam
 
 <img width="2173" height="469" alt="image" src="https://github.com/user-attachments/assets/11c8027d-9ebc-4cc4-ba99-02d00b6fe735" />
 
+
 ## Step 4: Create a Conditional Access Policy to Require MFA and Compliant Devices
 
 - Go to Conditional Access, Policies, and click on New policy.
@@ -245,11 +250,11 @@ Microsoft recommends excluding emergency access (Break Glass) accounts from Cond
 
 <img width="2555" height="1228" alt="image" src="https://github.com/user-attachments/assets/3c506016-556b-44b8-9a38-f9e48f3c6124" />
 
-- In the Include, choose Users and groups, and select the SG-CA-Finance security group.
+- In the Include section, choose Users and groups, and select the SG-CA-Finance security group.
 
 <img width="2277" height="1230" alt="image" src="https://github.com/user-attachments/assets/12327e5f-74da-4c22-9245-633cedaf57b2" />
 
-- Next, go to Target resources, and select All resources under Include.
+- Next, go to Target resources and select All resources under Include.
 
 <img width="615" height="756" alt="image" src="https://github.com/user-attachments/assets/3f962f82-96ae-4282-aa0b-decdca7477c6" />
 
@@ -315,3 +320,17 @@ Microsoft recommends excluding emergency access (Break Glass) accounts from Cond
 - Troubleshooting details show that the device is compliant, and the error code indicates that the access is blocked by the Conditional Access Policy.
 
 <img width="985" height="692" alt="image" src="https://github.com/user-attachments/assets/d6f492de-f4d8-4d1e-9296-7ab1bdb2565a" />
+
+- Disable the block policy that uses IP, and make sure the VPN is not set to Poland. In the Sign-ins, block-GPS is not applied.
+
+<img width="855" height="310" alt="image" src="https://github.com/user-attachments/assets/3cd463db-e74c-4203-9263-fb39329a12e7" />
+
+- The location tab indicates the Authenticator app location	is Poland, which is excluded from the block list.
+  
+<img width="854" height="356" alt="image" src="https://github.com/user-attachments/assets/3ce669ae-2c3c-4b04-b20d-3cbfab89085f" />
+
+- Disabled policy does not provide any details in the request. Change it to read-only mode and try another country via VPN.
+- “Report-only: Failure means that the policy would have blocked access if it had been enabled.
+
+<img width="852" height="940" alt="image" src="https://github.com/user-attachments/assets/e46d2ae5-cbd5-4d2c-ab56-ef708845d615" />
+
