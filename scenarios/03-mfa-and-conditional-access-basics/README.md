@@ -264,20 +264,54 @@ Microsoft recommends excluding emergency access (Break Glass) accounts from Cond
 
 ## Step 6: Tests
 
-login to portal azure
-
+- Open the Tor Browser and sign in to the Azure portal.
 
 <img width="1022" height="718" alt="image" src="https://github.com/user-attachments/assets/5bbc4ce0-afe9-4a15-a3c3-728a1546d748" />
 
+- Enter your password
 
 <img width="1017" height="725" alt="image" src="https://github.com/user-attachments/assets/b6c7761a-aa52-4501-9bbb-c90aabc7097e" />
 
+- Open Authenticator and enter the code. Location must be confirmed (if not set by default in your mobile's settings).
 
 <img width="1023" height="722" alt="image" src="https://github.com/user-attachments/assets/4a4ed2a2-d804-43ac-bb79-349932e40140" />
 
+- The warning appears, and access is blocked because Tor does not allow providing a device information (IP addresses are not considered here)
 
 <img width="1021" height="720" alt="image" src="https://github.com/user-attachments/assets/3d30c3e9-5892-48de-9949-99d044436f95" />
 
+- Go to Conditional Access, Monitoring, Sign-in logs, and find the proper record in the list. Open it.
 
+<img width="2503" height="915" alt="image" src="https://github.com/user-attachments/assets/be16c047-33cf-4645-8c97-a322ed839fa5" />
 
+- The Failure reason indicates that the device is not compliant.
 
+<img width="842" height="436" alt="image" src="https://github.com/user-attachments/assets/c6f7f52f-0640-4e95-92a8-432b6a880a14" />
+
+- Download and install any free VPN and set the country to Canada. Sign in to the Azure Portal. Why is access not blocked based on location?
+
+<img width="1023" height="720" alt="image" src="https://github.com/user-attachments/assets/7d49615e-368e-47eb-83a1-bdd6cc4bd64c" />
+
+- Sign-in log shows success; MFA requirement satisfied by claim in the token.
+
+<img width="842" height="553" alt="image" src="https://github.com/user-attachments/assets/d9146deb-a3cd-4c7d-9846-f25f81594b1c" />
+
+- The Conditional Access tab shows that the block policy was not applied
+
+<img width="849" height="314" alt="image" src="https://github.com/user-attachments/assets/3f7686c8-6f1a-459a-a0b0-ae005a878b72" />
+
+- The details show that the location does not match
+
+<img width="726" height="856" alt="image" src="https://github.com/user-attachments/assets/8d91eaca-553f-44ba-9e4b-4c410e0e1a9a" />
+
+- Edit the block policy. Go to Network, Exclude, and select only Poland_IP. Then, create a copy of the policy, but this time in the exclude choose Poland_GPS.
+
+<img width="623" height="1230" alt="image" src="https://github.com/user-attachments/assets/cd22dcb1-46c3-42e1-9eef-683da6b7a34e" />
+
+- Once again, sign in to the Azure Portal; access is blocked.
+
+<img width="984" height="690" alt="image" src="https://github.com/user-attachments/assets/61b9bab5-3837-456c-9a21-62a832abc5e9" />
+
+- Troubleshooting details show that the device is compliant, and the error code indicates that the access is blocked by the Conditional Access Policy.
+
+<img width="985" height="692" alt="image" src="https://github.com/user-attachments/assets/d6f492de-f4d8-4d1e-9296-7ab1bdb2565a" />
