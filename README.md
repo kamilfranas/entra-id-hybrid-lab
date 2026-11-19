@@ -6,9 +6,9 @@ Hands-on identity labs built around a hybrid environment: on-premises Active Dir
 
 ## Scenarios
 
-1. [Hybrid sync with Entra Connect and filtering](scenarios/hybrid-identity-entra-connect/)
-2. [SSPR with password writeback and password protection](scenarios/02-sspr-writeback/)
-3. [Conditional Access: MFA and geo-blocking](scenarios/03-conditional-access-geo-blocking/)
+1. [Hybrid sync with Entra Connect and filtering](scenarios/01-entra-connect-install-and-basic-sync/)
+2. [SSPR with password writeback and password protection](scenarios/02-password-writeback-sspr-and-protection/)
+3. [Conditional Access: MFA and geo-blocking](scenarios/03-mfa-and-conditional-access-basics/)
 
 Each scenario folder contains its own README with the goal, prerequisites, steps, and the final result.
 
@@ -43,7 +43,7 @@ entra-id-labs/
 ├── README.md
 ├── scenarios/
 │   ├── 01-entra-connect-install-and-basic-sync/
-│   ├── 02-sspr-writeback/
-│   └── 03-conditional-access-geo-blocking/
+│   ├── 02-password-writeback-sspr-and-protection/
+│   └── 03-mfa-and-conditional-access-basics/
 └── scripts/
 ```
