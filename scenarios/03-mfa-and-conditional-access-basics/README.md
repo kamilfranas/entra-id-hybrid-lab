@@ -121,7 +121,7 @@ A Microsoft Entra ID P1 or P2 license, required for Conditional Access and dynam
 
 - On the Ready to configure page, verify that the SCP for device registration will be configured for your forest, and click Configure.
 
-- <img width="881" height="620" alt="image" src="https://github.com/user-attachments/assets/80e7102c-8802-4305-ae0f-1a50cd767225" />
+<img width="881" height="620" alt="image" src="https://github.com/user-attachments/assets/80e7102c-8802-4305-ae0f-1a50cd767225" />
 
 - When the configuration completes and the wizard reports that the hybrid Microsoft Entra ID join tasks completed successfully, click Exit.
 
@@ -330,7 +330,7 @@ Microsoft recommends excluding emergency access (Break Glass) accounts from Cond
 <img width="854" height="356" alt="image" src="https://github.com/user-attachments/assets/3ce669ae-2c3c-4b04-b20d-3cbfab89085f" />
 
 - Disabled policy does not provide any details in the request. Change it to read-only mode and try another country via VPN.
-- “Report-only: Failure means that the policy would have blocked access if it had been enabled.
+- Report-only: Failure means that the policy would have blocked access if it had been enabled.
 
 <img width="852" height="940" alt="image" src="https://github.com/user-attachments/assets/e46d2ae5-cbd5-4d2c-ab56-ef708845d615" />
 
