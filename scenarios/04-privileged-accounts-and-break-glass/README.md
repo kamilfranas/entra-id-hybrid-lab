@@ -229,4 +229,122 @@ Get-MgUserAuthenticationFido2Method -UserId $user1.Id
 
 
 ### Configure certificate-based authentication
+- **The certificate request and issuance process will not be demonstrated, as the PKI configuration and certificate enrollment steps are outside the scope of this lab.**
+- 
+- Create a PKI container in the Entra trust store with Microsoft Graph.
+
+```powershell
+$body = @{ displayName = "KAM-PKI" } | ConvertTo-Json
+$pki = Invoke-MgGraphRequest -Method POST -Uri "https://graph.microsoft.com/v1.0/directory/publicKeyInfrastructure/certificateBasedAuthConfigurations" -Body $body -ContentType "application/json"
+$pki
+```
+
+<img width="1997" height="358" alt="image" src="https://github.com/user-attachments/assets/dc7eb17d-158b-4a4e-a153-b92ada7f76d3" />
+
+- Add the root CA certificate to the PKI container with Microsoft Graph.
+  
+```powershell
+$cer = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2("Path")
+$body = @{
+certificateAuthorityType = "root"
+certificate = [System.Convert]::ToBase64String($cer.RawData)
+expirationDateTime = $cer.NotAfter.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
+} | ConvertTo-Json
+try {
+Invoke-MgGraphRequest -Method POST -Uri "https://graph.microsoft.com/v1.0/directory/publicKeyInfrastructure/certificateBasedAuthConfigurations/$($pki.id)/certificateAuthorities" -Body $body -ContentType "application/json"
+} catch {
+$_.ErrorDetails.Message
+}
+```
+
+<img width="2207" height="585" alt="image" src="https://github.com/user-attachments/assets/f2ff0a09-cba6-4d0e-a44a-388c48f61ba4" />
+
+- Add the issuing CA certificate to the PKI container as an intermediate with Microsoft Graph.
+
+```powershell
+$cer = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2("Path")
+$body = @{
+certificateAuthorityType = "intermediate"
+certificate = [System.Convert]::ToBase64String($cer.RawData)
+
+} | ConvertTo-Json
+try {
+Invoke-MgGraphRequest -Method POST -Uri "https://graph.microsoft.com/v1.0/directory/publicKeyInfrastructure/certificateBasedAuthConfigurations/$($pki.id)/certificateAuthorities" -Body $body -ContentType "application/json"
+} catch {
+$_.ErrorDetails.Message
+}
+```
+<img width="2211" height="587" alt="image" src="https://github.com/user-attachments/assets/0a71f781-9746-44bd-ba8a-11b4df66e2c0" />
+
+- Open Public key infrastructure in the Entra admin center and confirm the KAM-PKI container exists.
+
+<img width="2552" height="1007" alt="image" src="https://github.com/user-attachments/assets/65655f72-77c2-4cc1-a4f1-9108e4c5ff58" />
+
+- Open the KAM-PKI container and confirm it holds the root CA and the issuing CA.
+
+<img width="2277" height="387" alt="image" src="https://github.com/user-attachments/assets/d856e485-e058-42c9-a50c-cb688763b398" />
+
+- Create the Break-glass-CBA group and add Break-glass-account-2 to it.
+
+```powershell
+$group = New-MgGroup -DisplayName "Break-glass-CBA" -MailEnabled:$false -MailNickname "break-glass-cba" -SecurityEnabled:$true
+$userId = (Get-MgUser -Filter "DisplayName eq 'Break-glass-account-2'").Id
+New-MgGroupMember -GroupId $group.Id -DirectoryObjectId $userId
+Get-MgGroupMember -GroupId $group.Id
+```
+
+<img width="1368" height="272" alt="image" src="https://github.com/user-attachments/assets/382794f2-e33f-445e-a500-154b4d8d6c12" />
+
+- Enable the certificate-based authentication method for the Break-glass-CBA group with Microsoft Graph.
+
+```powershell
+$groupName = "Break-glass-CBA"
+$groupId = (Get-MgGroup -Filter "displayName eq '$groupName'").Id
+$body = @{
+    "@odata.type" = "#microsoft.graph.x509CertificateAuthenticationMethodConfiguration"
+    id    = "X509Certificate"
+    state = "enabled"
+    certificateUserBindings = @(
+        @{
+            x509CertificateField = "PrincipalName"
+            userProperty         = "userPrincipalName"
+            priority             = 1
+        }
+    )
+    authenticationModeConfiguration = @{
+        x509CertificateAuthenticationDefaultMode = "x509CertificateMultiFactor"
+    }
+    includeTargets = @(
+        @{
+            targetType             = "group"
+            id                     = $groupId
+            isRegistrationRequired = $false
+        }
+    )
+} | ConvertTo-Json -Depth 5
+try {
+    Invoke-MgGraphRequest -Method PATCH -Uri "https://graph.microsoft.com/v1.0/policies/authenticationMethodsPolicy/authenticationMethodConfigurations/x509Certificate" -Body $body -ContentType "application/json"
+} catch {
+    $_.ErrorDetails.Message
+}
+```
+<img width="1948" height="626" alt="image" src="https://github.com/user-attachments/assets/7de6a9ad-5c54-4df2-9a35-4243b8e90d8a" />
+
+- Open myapps.microsoft.com in a private browser window and enter the UPN of Break-glass-account-2.
+
+<img width="1267" height="810" alt="image" src="https://github.com/user-attachments/assets/9a78d655-660d-44df-b99d-b39d11845975" />
+
+- Select Use a certificate or smart card on the sign-in page.
+
+<img width="1270" height="802" alt="image" src="https://github.com/user-attachments/assets/61c235c7-a706-423e-8d34-b9017d595b91" />
+
+- Choose the Break-glass-account-2 certificate in the certificate picker.
+
+<img width="1271" height="807" alt="image" src="https://github.com/user-attachments/assets/93f5edbf-ffe6-4515-bf40-ed8ce89162ed" />
+
+- Successfully signed in to the My Apps portal using the certificate issued to Break-glass-account-2, confirming that certificate-based authentication (CBA) is working correctly.
+
+<img width="1271" height="808" alt="image" src="https://github.com/user-attachments/assets/d2631f21-e519-4884-a35b-0b1023b221cb" />
+
+
 
