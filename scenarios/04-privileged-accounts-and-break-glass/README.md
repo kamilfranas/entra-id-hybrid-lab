@@ -347,4 +347,99 @@ try {
 <img width="1271" height="808" alt="image" src="https://github.com/user-attachments/assets/d2631f21-e519-4884-a35b-0b1023b221cb" />
 
 
+## Step 6: Create the named administrator account and assign roles
 
+- Create the adm-kamil admin account, create the administrators group, and add the account to it with Microsoft Graph.
+
+<img width="843" height="362" alt="image" src="https://github.com/user-attachments/assets/a634a5e5-2dfd-4027-a286-5e52d0bf1623" />
+
+- Assign the Global Reader role to adm-kamil as an active assignment.
+
+```powershell
+$gr = Get-MgRoleManagementDirectoryRoleDefinition -Filter "displayname eq 'Global Reader'"
+New-MgRoleManagementDirectoryRoleAssignment -PrincipalId $admin.Id -RoleDefinitionId $gr.Id -DirectoryScopeId "/"
+```
+
+<img width="1692" height="326" alt="image" src="https://github.com/user-attachments/assets/316d5f40-66e6-4f57-bbbf-72663b121227" />
+
+- Check the available subscriptions, set the usage location, and assign the AAD_PREMIUM_P2 license to adm-kamil
+
+```powershell
+Get-MgSubscribedSku | Format-List
+$sku = Get-MgSubscribedSku | Where {$_.SkuPartNumber -eq "AAD_PREMIUM_P2"}
+Update-MgUser -UserId $admin.Id -UsageLocation "PL"
+Set-MgUserLicense -UserId $admin.Id -AddLicenses @{SkuId = $sku.SkuId} -RemoveLicenses @()
+```
+
+<img width="1067" height="785" alt="image" src="https://github.com/user-attachments/assets/cd35ad64-89c0-4719-bbea-9471a413d55b" />
+
+- Assign eligible directory roles to the user. The roles selected are illustrative; apply the principle of least privilege and assign administrators only the roles necessary for their responsibilities.
+
+```powershell
+$eligible = "User Administrator","Groups Administrator","Authentication Administrator","Authentication Policy Administrator","Conditional Access Administrator"
+$eligible | ForEach-Object { Get-MgRoleManagementDirectoryRoleDefinition -Filter "displayname eq '$_'" | select id }
+$eligible | ForEach-Object {
+     $roleName = $_
+
+     $role = Get-MgRoleManagementDirectoryRoleDefinition `
+         -Filter "displayName eq '$roleName'"
+
+     New-MgRoleManagementDirectoryRoleEligibilityScheduleRequest `
+         -Action "adminAssign" `
+         -RoleDefinitionId $role.Id `
+         -DirectoryScopeId "/" `
+         -PrincipalId $admin.Id `
+         -Justification "Eligible assignment for '$($admin.DisplayName)'" `
+         -ScheduleInfo @{
+             StartDateTime = (Get-Date).ToUniversalTime()
+             Expiration = @{
+                 Type = "afterDateTime"
+                 EndDateTime = (Get-Date).ToUniversalTime().AddDays(365)
+             }
+         }
+ }
+```
+
+<img width="2232" height="848" alt="image" src="https://github.com/user-attachments/assets/94e47b93-5b16-4005-b926-1eacafb38c71" />
+
+- To verify it, sign in to the Entra portal, navigate to ID Governance, Privileged Identity Management, and My roles.
+
+<img width="2551" height="803" alt="image" src="https://github.com/user-attachments/assets/ce252666-4e09-4c4d-a196-3153d4095a7f" />
+
+- Activate access to the first role.
+  
+<img width="586" height="498" alt="image" src="https://github.com/user-attachments/assets/73d2c97e-d2d1-4841-bf66-a62f5473e99a" />
+
+- Role activation settings should follow the Zero Trust principle, with appropriate security controls such as approval, MFA, and justification based on the role's privilege level and associated risk.
+- Sign in to the Microsoft Entra admin center as Global Administrator, navigate to Roles & admins, select the desired role, then open Role settings, Edit to configure its activation requirements.
+
+<img width="2557" height="491" alt="image" src="https://github.com/user-attachments/assets/8b0d2d3d-7fb1-436b-a8fd-fcc4ffc667d9" />
+
+- Under Activation, enable Require justification and Require approval, select the designated approver or approver group, then click Next. As a common practice, require administrators (and users) to provide a change or service ticket number explaining why the role needs to be activated, ensuring traceability and accountability.
+
+<img width="652" height="1215" alt="image" src="https://github.com/user-attachments/assets/7ba76ba7-17e0-488c-b214-ab8b2f5eec05" />
+
+- Leave the default configuration.
+
+<img width="690" height="1221" alt="image" src="https://github.com/user-attachments/assets/99bd2223-1733-4a17-8546-15a043ac8d5b" />
+
+- Under Notification, you can additionally configure recipients who should be notified when someone activates a role or when an eligible role assignment is granted to a user. This provides additional visibility and helps ensure that relevant security or IAM teams are aware of privileged access changes.
+
+<img width="1622" height="1227" alt="image" src="https://github.com/user-attachments/assets/479e09d5-c6ea-4157-89ef-4eb223c9afcf" />
+
+- Activate the role. You will now be required to provide a ticket number for the activation request.
+
+<img width="587" height="498" alt="image" src="https://github.com/user-attachments/assets/4b1917c4-ef50-4981-85dc-4863619d5b9e" />
+
+- The approver can use the link in the email or go to PIM in the Entra portal to approve the request.
+
+<img width="2556" height="791" alt="image" src="https://github.com/user-attachments/assets/a8aeecd2-d2d9-4094-af11-4e2a28b363c1" />
+
+- A short justification is also required before approving the request.
+
+<img width="367" height="687" alt="image" src="https://github.com/user-attachments/assets/f89d97cf-54f1-4019-8aba-3247b45dc234" />
+
+## Step 7: Exclude the break-glass group from Conditional Access policies
+
+### The Entra admin center does not support excluding accounts or groups from multiple Conditional Access policies simultaneously, so we will use Microsoft Graph PowerShell to automate this process.
+  
